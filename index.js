@@ -20,6 +20,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run () {
     await client.connect();
     const productCollection = client.db("dbuser1").collection("products");
+    const productOrderCollection = client.db("dbuser1").collection("orders");
 
     app.get('/products', async(req, res) => {
         const result = await productCollection.find({}).toArray();
@@ -28,6 +29,19 @@ async function run () {
     app.get('/products/:id',async(req, res) => {
         const id = req.params.id;
         const result = await productCollection.findOne({_id: ObjectId(id)});
+        res.send(result);
+    })
+    app.post('/order', async(req,res) => {
+        const doc = req.body;
+        const result = await productOrderCollection.insertOne(doc);
+        res.send(result);
+    })
+    app.get('/order/:email', async(req, res) => {
+        const email = req.params;
+        console.log(email);
+        const query = {email:email.email};
+        const result = await productOrderCollection.find(query).toArray();
+        console.log(result);
         res.send(result);
     })
 }
